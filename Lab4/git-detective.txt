@@ -1,0 +1,79 @@
+1. I first try to find which exact tag has the update on 2022-12-12. Thus, I use `git tag --list v2.39*` to find the lists of tags, which gives:
+v2.39.0
+v2.39.0-rc0
+v2.39.0-rc1
+v2.39.0-rc2
+v2.39.1
+v2.39.2
+v2.39.3
+v2.39.4
+v2.39.5
+I then did `git show v2.39.0` and found out it was exactly updated on December 12th, 2022, so this is the correct update.
+
+2. Then I used `git log v2.38.0..v2.39.0 --grep="merge-tree\|segfault"` to try to find where exactly in the update before v.2.39.0 was segfault or merge-tree mentioned, and going over the 551 lines I found this of interest:
+commit bcf22f29df87f25582de0ac9274d1567fa16be6f
+Merge: 7f8a6caee5 92481d1b26
+Author: Junio C Hamano <gitster@pobox.com>
+Date:   Tue Oct 25 17:11:34 2022 -0700
+
+    Merge branch 'js/merge-ort-in-read-only-repo' into maint-2.38
+
+    In read-only repositories, "git merge-tree" tried to come up with a
+    merge result tree object, which it failed (which is not wrong) and
+    led to a segfault (which is bad), which has been corrected.
+
+    * js/merge-ort-in-read-only-repo:
+      merge-ort: return early when failing to write a blob
+      merge-ort: fix segmentation fault in read-only repositories
+This tells me that it merged two commits that had one that fix the segmentation fault.
+
+3. Thus I did `git show 7f8a6caee5`,
+commit 7f8a6caee563de5b1df31f698dfbe4b55a6b2bea
+Merge: cf96b393d6 3e367a5f2f
+Author: Junio C Hamano <gitster@pobox.com>
+Date:   Tue Oct 25 17:11:34 2022 -0700
+
+    Merge branch 'ja/rebase-i-avoid-amending-self' into maint-2.38
+    
+    "git rebase -i" can mistakenly attempt to apply a fixup to a commit
+    itself, which has been corrected.
+    
+    * ja/rebase-i-avoid-amending-self:
+      sequencer: avoid dropping fixup commit that targets self via commit-ish
+
+Which isn't related what I have in mind, and then `git show 92481d1b26`, which gives me this log of interest:
+commit 92481d1b26ab57525f5efe01d01c7a3d337b8df7
+Author: Johannes Schindelin <Johannes.Schindelin@gmx.de>
+Date:   Wed Sep 28 07:29:22 2022 +0000
+
+    merge-ort: return early when failing to write a blob
+    
+    In the previous commit, we fixed a segmentation fault when a tree object
+    could not be written.
+
+Since it is the previous commit, I finally did `git show 92481d1b26^`
+commit 0b55d930a69692c7f4e7b90e35fa41f6c46df4bc
+Author: Johannes Schindelin <Johannes.Schindelin@gmx.de>
+Date:   Wed Sep 28 07:29:21 2022 +0000
+
+    merge-ort: fix segmentation fault in read-only repositories
+    
+    If the blob/tree objects cannot be written, we really need the merge
+    operations to fail, and not to continue (and then try to access the tree
+    object which is however still set to `NULL`).
+    
+    Let's stop ignoring the return value of `write_object_file()` and
+    `write_tree()` and set `clean = -1` in the error case.
+    
+    Reviewed-by: Elijah Newren <newren@gmail.com>
+    Signed-off-by: Johannes Schindelin <johannes.schindelin@gmx.de>
+    Signed-off-by: Junio C Hamano <gitster@pobox.com>
+
+diff --git a/merge-ort.c b/merge-ort.c
+index 99dcee2db8..f3bdce1041 100644
+--- a/merge-ort.c
++++ b/merge-ort.c
+@@ -3571,15 +3571,15 @@ static int tree_entry_order(const void *a_, const void *b_)
+...
+
+Which is exactly what I am looking for. Commit 0b55d9 authored by Johannes Schindelin is the one that fix the segmentation fault in read-only repositories.

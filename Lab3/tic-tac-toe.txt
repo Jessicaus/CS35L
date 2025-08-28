@@ -1,0 +1,9 @@
+1. Moved the individual square components to a separate folder under src/. It is currently located at src/Pages/Square.jsx.
+2. Added a new App.css file, imported by App.jsx to customize component stylings.
+3. Renamed the main function in App.jsx to Board, which renders the 3x3 tic-tac-toe grid. The indices for the squares are stored in a list inside Board, and used to map 9 squares.
+4. Added logic to handle clicks of individual squares. Used the useState hook to track the state of which player is next (xIsNext). handleClick updates the list of 9 squares, which is also managed using the useState hook, and in handleClick a newSquares is sliced from the squares state to manage the next state. Added props for Squares.jsx that includes its value and the handleClick function (which is passed to be used by buttons as onClick).
+5. Added a helper function (calculateWinner) to determine whether the game is won by any player. Added a let status message to indicate which player has won.
+6. Lifting both xIsNext and squares states up to parent component. Added a new export default function Game to manage what happens overall at the game. Removes xIsNext as a state with currentMove, but as a const that reevaluates every time currentMove rerenders.
+7. Added history as a state that maintains a list of all past movements by the player. Removes squares as a state but as history[currentMove].
+8. Added a function to handle adding history every time the player moves and passes it as a function to Board, which actually handles button clicking. Maps each move in history with their indices and corresponding message ("Go to move #") and returns a render output with buttons that updates.
+9. Added a function jumpTo, which is passed to each of the mapped history buttons.

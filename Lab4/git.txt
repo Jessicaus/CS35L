@@ -1,0 +1,2 @@
+The main difference is that Eggert's version has an extra local branch called 'maint', updated in January 13th, 2025, but our remote origins and the current branch we are 'master' or all the same (including todo, seen, next, jch).
+Also the one I cloned last commit date is May 5th 2025 while Eggert's is Feb 10th 2025, probably because Eggert cloned earlier and had an earlier version.

@@ -1,0 +1,29 @@
+1. Since the statement is in the source files, I first used `grep -n "Even newspaper reports present contradictory information" *` to find where the line existed. It returned:
+northamerica:883:# and wrote "Even newspaper reports present contradictory information."
+
+2. Then I used `git log -S"Even newspaper reports present contradictory information"` to find the differences that change the number of occurrences of this string (such that I can know the history of this when it first came into being). This gives me:
+commit c12b432741eed9a422fbf99fa27af6e7a941d88b
+Author: Arthur David Olson <ado@elsie>
+Date:   Thu Dec 21 11:43:42 1995 -0500
+
+    Eggert changes
+    
+    SCCS-file: northamerica
+    SCCS-SID: 7.20
+Later I used `git log -S"Even newspaper reports present contradictory information." --pretty=fuller` to give me further information
+commit c12b432741eed9a422fbf99fa27af6e7a941d88b
+Author:     Arthur David Olson <ado@elsie>
+AuthorDate: Thu Dec 21 11:43:42 1995 -0500
+Commit:     Paul Eggert <eggert@cs.ucla.edu>
+CommitDate: Wed Jul 18 03:02:20 2012 -0400
+
+    Eggert changes
+    
+    SCCS-file: northamerica
+    SCCS-SID: 7.20
+
+So actually the line was created by Arthur David Olson on December 21 11:43:42, 1995 (-0500), but it was committed in 2012 by Eggert probably because git doesn't exist back then, and Eggert added this history to the git-based version of tzdb.
+
+3. I went to that original information which introduces the line, and wrote `git blame c12b432741eed9a422fbf99fa27af6e7a941d88b northamerica | grep -n "Even newspaper reports present"`, which gives me:
+285:c12b43274 (Arthur David Olson 1995-12-21 11:43:42 -0500  285) # and writes ``Even newspaper reports present contradictory information.''
+This tells me at the time it is line 285 that was added, but now it is line 883 in the northamerica file.

@@ -1,0 +1,51 @@
+•	The computation of 2**(607 - 1) * (2**607 - 1)
+•	How many bits it would take to represent the above number in base-2 notation
+•	Describe the output of C-h k C-h k and why it happens
+•	Describe the output of C-h k M-SPC and why it happens
+•	What happens when my shuf.py code is invoked with Python2 instead of Python3, and why?
+•	Benchmark Test Results and Explanation
+1) Evaluate 14th Perfect Number
+Evaluating 2**(607 – 1) * (2** 607 – 1), I used M-! and then typed “(* (expt 2 (- 607 1)) (- (expt 2 607) 1))”
+Which gives me 141053783706712069063207958086063189881486743514715667838838675999954867742652380114104193329037690251561950568709829327164087724366370087116731268159313652487450652439805877296207297446723295166658228846926807786652870188920867879451478364569313922060370695064736073572378695176473055266826253284886383715072974324463835300053138429460296575143368065570759537328128
+
+2) How many bits it would take to represent the above number in base-2 notation
+Evaluating (+ (log (expt 2 (- 607 1)) 2) (log (- (expt 2 607) 1) 2)) gives me 1213.0
+3) Describe the output of C-h k C-h k and why it happens
+C-h k C-h k goes to the help documentation for C-h k, which runs the command isearch-describe-key. Essentially, the help command runs the command on itself and thus describes itself. 
+4) Describe the output of C-h k M-SPC and why it happens
+C-h k M-SPC goes to the help documentation for M-SPC. M-SPC runs the command just-one-space and manipulates whitespace around point in a smart way. Using /usr/bin/emacs. The more general function is cycle-spacing.
+
+5) randline.py Python2 vs Python3
+If invoke randline.py using Python3, python will return “[lrxjessica28@lnxsrv13 assign2]$ python randline.py test.txt
+  File "/w/home.10/home/lrxjessica28/assign2/randline.py", line 65
+    except IOError as (errno, strerror):
+                      ^
+SyntaxError: invalid syntax”
+The error is because it cannot directly assign the two variables in this tuple format anymore. Changing it into the following in Python3 works just fine:
+except IOError as e:
+        errno, strerror = e.args
+        parser.error("I/O error({0}): {1}".
+                     format(errno, strerror))
+6) What happens when my shuf.py code is invoked with Python2 instead of Python3, and why?
+My shuf.py has a syntax error because there is a non ASCII-code character I wrote in my answer. “SyntaxError: Non-ASCII character '\xe2' in file shuf.py on line 58, but no encoding declared; see http://python.org/dev/peps/pep-0263/ for details” this is because Python2 assumes ASCII unless you say otherwise. Python3 defaults to UTF-8, which is right for my answer.
+
+7) Benchmark Test Results and Explanation
+/usr/bin/python (before Python 3.11):
+1.	User + sys: 0.759s + 0.078s = 0.837s
+2.	User + sys: 0.754s + 0.068s = 0.822s
+3.	User + sys: 0.770s + 0.055s = 0.825s
+Median is 0.825s
+/usr/local/cs/bin/python (Python 3.11 or later)
+1.	User + sys: 0.747s + 0.057s = 0.804s
+2.	User + sys: 0.781s + 0.065s = 0.846s
+3.	User + sys: 0.759s + 0.059s = 0.818s
+Median is 0.818s
+Using Coreutils /usr/local/cs/bin/shuf gives
+1.	User + sys: 0.057s + 0.008s = 0.065s
+2.	User + sys: 0.065s + 0.012s = 0.077s
+3.	User + sys: 0.101s + 0.009s = 0.11s
+Median is 0.077s
+
+CPU: Intel(R) Xeon(R) Silver 4116 CPU @ 2.10GHz
+Operating System: Red Hat Enterprise Linux
+As can be seen, the actual shuf is about 10x quicker than my implementation. There’s no noticeable big difference between before Python 3.11 or a later version, however. The difference between my version the actual shuf’s version is partly because the actual shuf is written in C, rather than in Python. And since Python is higher-level interpreted language, it naturally runs slower. My self-made command after Python 3.11 is a little bit faster than before Python 3.11, so it is the same as expected. However, it isn’t significantly optimized, probably because the code I wrote didn’t use the parts Python 3.11 made faster than earlier releases. The difference isn’t important enough that it is statistically significant.

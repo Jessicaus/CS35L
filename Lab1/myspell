@@ -1,0 +1,5 @@
+#!/bin/bash
+
+tr -cs "A-Za-z-'0-9,&/.-" "[\n*]" </usr/share/dict/linux.words | sort -u > dict.me
+cat $1 | tr -cs "A-Za-z-'0-9,&/.-" "[\n*]" | sort -u | comm -23 - dict.me
+rm dict.me

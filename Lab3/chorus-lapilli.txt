@@ -1,0 +1,31 @@
+Copied tic-tac-toe code
+1. Moved the individual square components to a separate folder under src/. It is currently located at src/Pages/Square.jsx.
+2. Added a new App.css file, imported by App.jsx to customize component stylings.
+3. Renamed the main function in App.jsx to Board, which renders the 3x3 tic-tac-toe grid. The indices for the squares are stored in a list inside Board, and used to map 9 squares.
+4. Added logic to handle clicks of individual squares. Used the useState hook to track the state of which player is next (xIsNext). handleClick updates the list of 9 squares, which is also managed using the useState hook, and in handleClick a newSquares is sliced from the squares state to manage the next state. Added props for Squares.jsx that includes its value and the handleClick function (which is passed to be used by buttons as onClick).
+5. Added a helper function (calculateWinner) to determine whether the game is won by any player. Added a let status message to indicate which player has won.
+6. Lifting both xIsNext and squares states up to parent component. Added a new export default function Game to manage what happens overall at the game. Removes xIsNext as a state with currentMove, but as a const that reevaluates every time currentMove rerenders.
+7. Added history as a state that maintains a list of all past movements by the player. Removes squares as a state but as history[currentMove].
+8. Added a function to handle adding history every time the player moves and passes it as a function to Board, which actually handles button clicking. Maps each move in history with their indices and corresponding message ("Go to move #") and returns a render output with buttons that updates.
+9. Added a function jumpTo, which is passed to each of the mapped history buttons.
+
+Chorus-lapilli, on top of what is done in tic-tac-toe
+1. Separated function Board with its helper function calculateWinner inside App.jsx and moved the component with Square.jsx under src/Pages/Board.jsx/. Added a styles folder, the same level as Pages folder, to store Board.css, which is imported by Board.jsx.
+2. Added a state isPlacementPhase (currentMove < 6) using useState hook, to manage whether both players have placed 3 lapilli already, which is passed as a prop to Board.
+3. In Board.jsx, start to add the logic to move existing grains on the board. 
+	- Add a helper function isAdjacent to determine if two indices are connected left, right, top, bottom, diagonal.
+	- If isPlacementPhase is true, then the logic is the same as tic-tac-toe; if not, goes through the clicking process.
+	- Added a let selected to indicate the indices of the grain selected. If the square already has an existing grain and is the currentPlayer, the selected will be that index. Otherwise, if selected is not null and the place to move the square is null and the new are adjacent, update the newSquares accordingly (remove the previous position's value and add the new position's value).
+	- No matter what happens (valid or not), after the last operation selected is reset to null.
+4. Add specific checks for whether the current player holds the center square occupied.
+	- if squares[4] is current Player, if the next move (indicated by nextSquares) allowed the game to be won, it is a valid action and proceeds; otherwise, if the selected index is 4, it is also a valid move; the rest of the cases nothing is done.
+	- if the player does not hold the middle square, the move proceeds.
+
+Tests
+1. Added assertBoardState in test_main.py to match the tiles with an expected input of list of 9.
+2. Added tests in test.py
+	- test_alternate_button_click to check if consecutive button clicks are of different symbols.
+	- test_player_win check if after one player has the game whether the game still proceeds
+	- test_valid_adjacent_move test whether players can move their pieces to adjacent squares after 3 placement by each player
+	- test_center_cannot move test whether moves can move other tiles than center tile when they occupy the center tile.
+	- test_can_win_from_center test whether moves can be valid if the player occupies the center tile but a movement from other place guarantees a win in the next step.
